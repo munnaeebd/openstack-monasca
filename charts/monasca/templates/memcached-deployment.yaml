@@ -1,0 +1,32 @@
+{{- if .Values.memcached.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "memcached.fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    component: "{{ .Values.memcached.name }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+  replicas: {{ .Values.memcached.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        component: "{{ .Values.memcached.name }}"
+    spec:
+      containers:
+      - name: memcached
+        image: "{{ .Values.memcached.image.repository }}:{{ .Values.memcached.image.tag }}"
+        imagePullPolicy: {{ .Values.memcached.image.pullPolicy }}
+        resources:
+{{ toYaml .Values.memcached.resources | indent 10 }}
+        ports:
+          - containerPort: 11211
+            name: memcached
+{{- end }}

@@ -1,0 +1,43 @@
+{{- if .Values.setDefaultUser.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: monasca-influxdb
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+  name: monasca-influxdb-set-auth
+  annotations:
+    "helm.sh/hook": post-install
+spec:
+  activeDeadlineSeconds: {{ .Values.setDefaultUser.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        app: monasca-influxdb
+        release: "{{ .Release.Name }}"
+    spec:
+      containers:
+      - name: monasca-influxdb-set-auth
+        image: "{{ .Values.setDefaultUser.image }}"
+        env:
+          - name: INFLUXDB_USER
+            valueFrom:
+              secretKeyRef:
+                name: monasca-influxdb-auth
+                key: influxdb-user
+          - name: INFLUXDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: monasca-influxdb-auth
+                key: influxdb-password
+        args:
+          - "/bin/sh"
+          - "-c"
+          - |
+             curl -X POST http://monasca-influxdb:{{ .Values.config.http.bind_address }}/query \
+             --data-urlencode \
+             "q=CREATE USER \"${INFLUXDB_USER}\" WITH PASSWORD '${INFLUXDB_PASSWORD}' {{ .Values.setDefaultUser.user.privileges }}"
+      restartPolicy: {{ .Values.setDefaultUser.restartPolicy }}
+{{- end -}}

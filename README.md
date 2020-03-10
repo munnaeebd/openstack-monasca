@@ -64,9 +64,9 @@ This chart bootstraps a Monasca deployment on a Kubernetes cluster using the Hel
 Installing the Chart:
 ```
 # helm repo add monasca http://monasca.io/monasca-helm
-# helm install -f mysql/mysql_values.yaml --name monasca --namespace monasca monasca/monasca
-# helm install -f influxdb/influxdb_values.yaml --name monasca --namespace monasca monasca/monasca
-# helm install -f monasca/monasca_values.yaml --name monasca --namespace monasca monasca/monasca
+# helm install -f mysql/values.yaml --name standalone-monasca-mysql --namespace monasca monasca/monasca
+# helm install -f influxdb/values.yaml --name standalone-monasca-influxdb --namespace monasca monasca/monasca
+# helm install -f monasca/values.yaml --name monasca --namespace monasca monasca/monasca
 ```
 Deploying Ingress for Monasca API:
 ```
@@ -80,10 +80,10 @@ Modify monasca-client deployment to point to external keystone endpoint:
 ...
         env:
         - name: OS_AUTH_URL
-          value: http://<ip>:35357/v3
+          value: http://cloud.brilliant.com.bd:5000/v3
 ...
 ```
-This will point monasca-client to retrive token from http://<ip>:5000/v3 (external keystone)
+This will point monasca-client to retrive token from http://cloud.brilliant.com.bd:5000/v3 (external keystone)
 
 
 **4. Patch Persistent Volumes to retain:**
@@ -117,4 +117,4 @@ standalone-kafka-zookeeper-headless   ClusterIP   None             <none>       
 # kubectl -n monasca get ing
 ```
 
-Open grafana on http://grafana-mon.brilliant.co.bd with keystone user "monasca" and password.
+Open grafana on http://grafana-mon.brilliant.com.bd with keystone user "monasca" and password.

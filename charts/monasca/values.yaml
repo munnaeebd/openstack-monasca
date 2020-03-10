@@ -45,8 +45,8 @@ grafana_init:
       memory: 256Mi
       cpu: 500m
   log_level: INFO
-  username: monasca-agent
-  password: password
+  username: monasca
+  password: *******
   datasource:
     type: monasca
     access_mode: proxy

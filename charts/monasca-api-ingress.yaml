@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: monasca-api-ingress
+  namespace: monasca
+  labels:
+    app: monasca-monasca
+    chart: monasca-0.6.4
+    component: api
+spec:
+  rules:
+  - host: mon-api.brilliant.com.bd
+    http:
+      paths:
+      - backend:
+          serviceName: monasca-api
+          servicePort: 8070
+        path: /

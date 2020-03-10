@@ -9,6 +9,22 @@ This chart bootstraps Monasca deployment on a Kubernetes cluster using the Helm 
 
 Kubernetes 1.4+ with 1 master + 3 worker nodes
 
+Openstack
+1. Create monasca user in keystone
+openstack user create --domain default --password-prompt monasca
+
+2. Add monasca user to service tenant with admin role
+openstack role add --project service --user monasca admin
+
+3. Create monasca service
+openstack service create --name monasca  --description "monasca" monitoring
+
+4. Create monasca endpoint
+penstack endpoint create --region RegionOne monitoring public http://mon-api.brilliant.com.bd
+openstack endpoint create --region RegionOne monitoring admin http://mon-api.brilliant.com.bd
+openstack endpoint create --region RegionOne monitoring internal http://mon-api.brilliant.com.bd
+
+
 
 **1. Kafka Installation :**
 
@@ -67,6 +83,32 @@ Installing the Chart:
 # helm install -f mysql/values.yaml --name standalone-monasca-mysql --namespace monasca monasca/monasca
 # helm install -f influxdb/values.yaml --name standalone-monasca-influxdb --namespace monasca monasca/monasca
 # helm install -f monasca/values.yaml --name monasca --namespace monasca monasca/monasca
+
+```
+Check the deployment:
+```
+kubectl -n monasca get deploy
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+kafka-manager       1/1     1            1           22h
+monasca-api         3/3     3            3           15d
+monasca-client      1/1     1            1           15d
+monasca-grafana     1/1     1            1           15d
+monasca-influxdb    1/1     1            1           15d
+monasca-memcached   1/1     1            1           15d
+monasca-mysql       1/1     1            1           15d
+monasca-persister   9/9     9            9           15d
+
+helm ls
+NAME                            REVISION        UPDATED                         STATUS          CHART                   APP VERSION   NAMESPACE
+kafka-manager                   1               Mon Mar  9 17:10:43 2020        DEPLOYED        kafka-manager-2.2.1     1.3.3.22      monasca
+monasca                         1               Sun Feb 23 17:13:00 2020        DEPLOYED        monasca-0.6.4                         monasca
+nginx-ingress                   1               Sun Jan 12 13:52:25 2020        DEPLOYED        nginx-ingress-1.28.2    0.26.2        kube-system
+standalone-kafka                1               Mon Mar  9 17:02:51 2020        DEPLOYED        kafka-0.20.8            5.0.1         monasca
+standalone-monasca-influxdb     1               Sun Feb 23 16:26:37 2020        DEPLOYED        influxdb-0.6.2-0.0.2                  monasca
+standalone-monasca-mysql        1               Sun Feb 23 16:32:09 2020        DEPLOYED        mysql-0.2.4                           monasca
+
+
+
 ```
 Deploying Ingress for Monasca API:
 ```
@@ -231,14 +273,5 @@ systemctl restart monasca-agent.target
 systemctl status monasca-collector
 systemctl status monasca-forwarder
 systemctl status monasca-statsd
-
-
-
-
-
-
-
-
-
 
 ```

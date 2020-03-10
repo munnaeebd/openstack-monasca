@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: monasca-grafana
+  namespace: monasca
+  labels:
+    app: monasca-grafana
+    component: grafana
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: monasca-grafana
+        component: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: "monasca/grafana" 
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          volumeMounts:
+          - name: grafana-config
+            mountPath: /etc/grafana
+          env:
+            - name: GF_AUTH_KEYSTONE_AUTH_URL
+              value: 'http://<ip>:35357'
+            - name: GF_DATABASE_HOST
+              value: 'monasca-mysql'
+            - name: GF_DATABASE_PORT
+              value: '3306'
+            - name: GF_DATABASE_PASSWORD
+              value: 'password'
+            - name: GF_DATABASE_USER
+              value: 'grafana'
+      volumes:
+        - name: grafana-config
+          configMap:
+            name: monasca-grafana-configmap

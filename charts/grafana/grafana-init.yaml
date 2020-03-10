@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: monasca-grafana-init-job
+  namespace: monasca
+  labels:
+    app: monasca-grafana
+    component: "grafana-init-job"
+spec:
+  template:
+    metadata:
+      labels:
+        app: monasca-grafana
+        component: 'grafana-init-job'
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: grafana-init-job
+          image: 'monasca/grafana-init'
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LOG_LEVEL
+              value: 'DEBUG'
+            - name: GRAFANA_URL
+              value: 'http://monasca-grafana:3000'
+            - name: GRAFANA_USERNAME
+              value: 'monasca-agent'
+            - name: GRAFANA_PASSWORD
+              value: 'password'
+            - name: DATASOURCE_URL
+              value: 'http://monasca-api:8070/'

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: monasca-grafana
+  namespace: monasca
+  labels:
+    app: monasca-grafana
+    component: grafana
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 3000
+  selector:
+    app: monasca-grafana
+    component: grafana

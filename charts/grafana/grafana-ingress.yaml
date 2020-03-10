@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: grafana-ingress
+  namespace: monasca
+  labels:
+    app: monasca-grafana
+spec:
+  rules:
+  - host: grafana-mon.brilliant.com.bd
+    http:
+      paths:
+      - backend:
+          serviceName: monasca-grafana
+          servicePort: 3000
+        path: /

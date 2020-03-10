@@ -118,3 +118,127 @@ standalone-kafka-zookeeper-headless   ClusterIP   None             <none>       
 ```
 
 Open grafana on http://grafana-mon.brilliant.com.bd with keystone user "monasca" and password.
+
+**6. Deploy monasca-agent on all compute nodes**
+```
+# yum install epel-release
+yum install python-pip gcc python-devel
+
+pip install --upgrade pip
+pip install virtualenv
+pip install zipp==1.2.0 # if required
+
+
+mkdir monasca-agent
+cd monasca-agent/
+
+cp -R /usr/lib64/python2.7/site-packages/ujson* lib/python2.7/site-packages/
+
+virtualenv  .
+source bin/activate
+
+pip install --no-cache-dir --upgrade monasca-agent==2.8.0
+
+cp /usr/lib64/python2.7/site-packages/libvirt.py lib/python2.7/site-packages/
+cp /usr/lib64/python2.7/site-packages/libvirt.pyc lib/python2.7/site-packages/
+cp /usr/lib64/python2.7/site-packages/libvirt.pyo lib/python2.7/site-packages/
+cp /usr/lib64/python2.7/site-packages/libvirtmod* lib/python2.7/site-packages/
+cp /usr/lib64/python2.7/site-packages/libvirt_python-4.5.0-py2.7.egg-info lib/python2.7/site-packages/
+
+pip install monasca-agent[libvirt]==2.8.0
+
+monasca-setup -u monasca -p ******* --check_frequency 120 --project_name service --project_domain_name Default --region_name RegionOne --user_domain_name Default -s monitoring --endpoint_type adminURL --keystone_url http://cloud.brilliant.com.bd:5000 --monasca_url http://mon-api.brilliant.com.bd/v2.0 --config_dir /etc/monasca/agent --log_dir /var/log/monasca/agent --log_level INFO --overwrite
+
+monasca-setup -d libvirt --overwrite
+
+usermod -aG root mon-agent
+
+vi /etc/monasca/agent/agent.yaml
+
+Api:
+  amplifier: 0
+  backlog_send_rate: 1000
+  ca_file: null
+  endpoint_type: adminURL
+  insecure: false
+  keystone_url: http://cloud.brilliant.com.bd:5000
+  max_batch_size: 0
+  max_buffer_size: 1000
+  max_measurement_buffer_size: -1
+  password: monasca-openstack-user-password
+  project_domain_id: null
+  project_domain_name: Default
+  project_id: null
+  project_name: service
+  region_name: RegionOne
+  service_type: null
+  url: http://mon-api.brilliant.com.bd/v2.0
+  user_domain_id: null
+  user_domain_name: Default
+  username: monasca
+Logging:
+  collector_log_file: /var/log/monasca/agent/collector.log
+  enable_logrotate: true
+  forwarder_log_file: /var/log/monasca/agent/forwarder.log
+  log_level: INFO
+  statsd_log_file: /var/log/monasca/agent/statsd.log
+Main:
+  check_freq: 120
+  collector_restart_interval: 24
+  dimensions:
+    service: monitoring
+  hostname: compute3.brilliant.com.bd
+  num_collector_threads: 1
+  pool_full_max_retries: 4
+  sub_collection_warn: 6
+Statsd:
+  monasca_statsd_port: 8125
+
+
+
+vi /etc/monasca/agent/conf.d/libvirt.yaml
+
+init_config:
+  auth_url: http://cloud.brilliant.com.bd:5000
+  cache_dir: /dev/shm
+  customer_metadata:
+  - scale_group
+  disk_collection_period: 0
+  max_ping_concurrency: 8
+  metadata:
+  - scale_group
+  nova_refresh: 14400
+  password:  nova-password-here
+  ping_check: true
+  project_name: service
+  project_domain_id: default
+  region: RegionOne
+  username: nova
+  user_domain_id: default
+  vm_cpu_check_enable: true
+  vm_disks_check_enable: true
+  vm_extended_disks_check_enable: false
+  vm_network_check_enable: true
+  vm_ping_check_enable: true
+  vm_probation: 120
+  vnic_collection_period: 0
+instances: []
+
+systemctl status monasca-agent.target
+systemctl enable monasca-agent.target
+systemctl restart monasca-agent.target
+
+systemctl status monasca-collector
+systemctl status monasca-forwarder
+systemctl status monasca-statsd
+
+
+
+
+
+
+
+
+
+
+```

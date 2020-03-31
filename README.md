@@ -24,7 +24,7 @@ openstack service create --name monasca  --description "monasca" monitoring
 
 4. Create monasca endpoint
 
-penstack endpoint create --region RegionOne monitoring public http://mon-api.brilliant.com.bd
+openstack endpoint create --region RegionOne monitoring public http://mon-api.brilliant.com.bd
 openstack endpoint create --region RegionOne monitoring admin http://mon-api.brilliant.com.bd
 openstack endpoint create --region RegionOne monitoring internal http://mon-api.brilliant.com.bd
 

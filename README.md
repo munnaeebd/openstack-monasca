@@ -11,23 +11,23 @@ Kubernetes 1.4+ with 1 master + 3 worker nodes
 
 Openstack
 1. Create monasca user in keystone
-
+```
 openstack user create --domain default --password-prompt monasca
-
+```
 2. Add monasca user to service tenant with admin role
-
+```
 openstack role add --project service --user monasca admin
-
+```
 3. Create monasca service
-
+```
 openstack service create --name monasca  --description "monasca" monitoring
-
+```
 4. Create monasca endpoint
-
+```
 openstack endpoint create --region RegionOne monitoring public http://mon-api.brilliant.com.bd
 openstack endpoint create --region RegionOne monitoring admin http://mon-api.brilliant.com.bd
 openstack endpoint create --region RegionOne monitoring internal http://mon-api.brilliant.com.bd
-
+```
 
 
 **1. Kafka Installation :**
@@ -44,6 +44,7 @@ Installing the Chart
 To install the chart with the release name standalone-kafka in the monasca namespace:
 ```
 # helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+or   helm repo add incubator https://charts.helm.sh/incubator
 # mkdir monasca-install
 # cd monasca-install
 # git clone https://github.com/cloud-operation/monasca-helm.git
@@ -84,9 +85,18 @@ This chart bootstraps a Monasca deployment on a Kubernetes cluster using the Hel
 Installing the Chart:
 ```
 # helm repo add monasca http://monasca.io/monasca-helm
-# helm install -f mysql/values.yaml --name standalone-monasca-mysql --namespace monasca monasca/monasca
-# helm install -f influxdb/values.yaml --name standalone-monasca-influxdb --namespace monasca monasca/monasca
-# helm install -f monasca/values.yaml --name monasca --namespace monasca monasca/monasca
+# helm install -f mysql/values.yaml --name standalone-monasca-mysql --namespace monasca mysql/
+# helm install -f influxdb/values.yaml --name standalone-monasca-influxdb --namespace monasca influxdb/
+
+ 
+helm install -f monasca/values.yaml --name monasca --namespace monasca monasca/
+ 
+full command:
+cd monasca
+ 
+helm install monasca --namespace monasca --set api.keystone.username=monasca,api.keystone.password=Enp129s0f0,api.keystone.tenant_name=service,api.keystone.identity_url="http://192.168.40.10:5000",api.keystone.auth_url="http://192.168.40.10:5000",client.keystone.username=monasca,client.keystone.password=Enp129s0f0,client.keystone.user_domain_name=Default,client.keystone.project_name=service,client.keystone.project_domain_name=Default,client.keystone.url="http://192.168.40.10:5000/v3" .
+
+
 
 ```
 Check the deployment:
